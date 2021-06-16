@@ -1,1 +1,2 @@
-init:
+ap:
+	terraform apply
