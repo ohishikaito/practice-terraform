@@ -17,16 +17,8 @@ module "describe_regions_for_ec2" {
   policy = data.aws_iam_policy_document.allow_describe_regions.json
 }
 
-resource "aws_s3_bucket_public_access_block" "private" {
-  bucket = aws_s3_bucket.private.id
-  block_public_acls = true
-  block_public_policy = true
-  ignore_public_acls = true
-  restrict_public_buckets = true
-}
-
 resource "aws_s3_bucket" "private" {
-  bucket = "private-pragmatic-terraform"
+  bucket = "private-pragmatic-terraform-ohishikaito20210618"
 
   versioning {
     enabled = true
@@ -40,3 +32,13 @@ resource "aws_s3_bucket" "private" {
     }
   }
 }
+
+resource "aws_s3_bucket_public_access_block" "private" {
+  bucket = aws_s3_bucket.private.id
+  block_public_acls = true
+  block_public_policy = true
+  ignore_public_acls = true
+  restrict_public_buckets = true
+}
+
+# 6章終わったら構築
