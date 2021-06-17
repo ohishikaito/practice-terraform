@@ -4,6 +4,7 @@ variable "identifer" {}
 
 resource "aws_iam_role" "default" {
   name = var.name
+  # 11行目のやつを読み込んでるっぽい！
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
