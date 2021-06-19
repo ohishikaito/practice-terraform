@@ -47,7 +47,8 @@ resource "aws_lb" "example" {
   load_balancer_type = "application"
   internal = false
   idle_timeout = 60
-  enable_deletion_protection = true
+  # 削除しないコマンドらしい。こいつがあるから消せない説？
+  # enable_deletion_protection = true
 
   subnets = [
     aws_subnet.public_0.id,
@@ -67,20 +68,39 @@ resource "aws_lb" "example" {
   ]
 }
 
-# data "aws_route53_zone" "example" {
-#   name = "example.com"
-# }
+data "aws_route53_zone" "example" {
+  name = "mynote.world"
+}
 
-# resource "aws_route53_zone" "test_example" {
-#   name = "test.example.com"
-# }
+resource "aws_route53_zone" "test_example" {
+  name = "test.mynote.world"
+}
 
-# resource "aws_route53_record" "example" {
-#   zone_id = data.aws_route53_zone.example.zone_id
-#   name = data.aws_route53_zone.example.name
-#   type = "A"
+resource "aws_route53_record" "example" {
+  zone_id = data.aws_route53_zone.example.zone_id
+  name = data.aws_route53_zone.example.name
+  type = "A"
 
-#   alias {
-#     name = aws_lb.example.dns_name
-#   }
-# }
+  alias {
+    name = aws_lb.example.dns_name
+    zone_id = aws_lb.example.zone_id
+    evaluate_target_health = true
+  }
+}
+
+output "domain_name" {
+  value = aws_route53_record.example.name
+}
+# ここでapplyするらしいけど、route53登録してないから動かないんじゃ？
+# mynote.world使うように変えた！
+# outputで出されたnameにHTTPアクセスすればokらしい
+
+resource "aws_acm_certificate" "example" {
+  domain_name = aws_route53_record.example.name
+  subject_alternative_names = []
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
