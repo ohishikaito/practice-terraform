@@ -87,5 +87,3 @@ resource "aws_s3_bucket" "force_destroy" {
   bucket = "force-destroy-pragmatic-terraform-ohishikaito20210618"
   force_destroy = true
 }
-
-# 6章終わったら構築
