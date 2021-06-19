@@ -68,10 +68,13 @@ resource "aws_lb" "example" {
   ]
 }
 
+# mynote.worldは必須
 data "aws_route53_zone" "example" {
+  # zone_id = "Z09170502X22Y1VY1UIK5"
   name = "mynote.world"
 }
 
+# 呼ばれてない
 resource "aws_route53_zone" "test_example" {
   name = "test.mynote.world"
 }
@@ -95,12 +98,66 @@ output "domain_name" {
 # mynote.world使うように変えた！
 # outputで出されたnameにHTTPアクセスすればokらしい
 
-resource "aws_acm_certificate" "example" {
-  domain_name = aws_route53_record.example.name
-  subject_alternative_names = []
-  validation_method = "DNS"
+# Error: multiple Route53Zone found please use vpc_id option to filter
 
-  lifecycle {
-    create_before_destroy = true
+#   on lb.tf line 71, in data "aws_route53_zone" "example":
+#   71: data "aws_route53_zone" "example" {
+# って言われんのうぜええええ　起動すらできない➡️レコード消してやったぜ！糞が死ね
+# レコード消しちゃったせいで色々めんどいから、全部削除する！
+# 次は起動＆削除ができるか？➡️レコード名変えよう。かぶってそう
+# ➡️mynote.worldにしないと↓のerrでる
+# Error: no matching Route53Zone found
+#   on lb.tf line 71, in data "aws_route53_zone" "example":
+#   71: data "aws_route53_zone" "example" {
+# もう1回ACMを設定してみよう！
+# ➡️apply2回する➡️検証保留中になってるのが原因っぽい！
+# terraformからACMだとめんどくさいらしいので、予め作ったやつを読み込ませる
+
+# resource "aws_acm_certificate" "example" {
+  # domain_name = aws_route53_record.example.name
+  # subject_alternative_names = []
+  # validation_method = "DNS"
+
+  # lifecycle {
+  #   create_before_destroy = true
+  # }
+# }
+data "aws_acm_certificate" "exmaple" {
+  domain = "mynote.world"
+  statuses = ["ISSUED"]
+}
+
+resource "aws_lb_listener" "https" {
+  load_balancer_arn = aws_lb.example.arn
+  port = "443"
+  protocol = "HTTPS"
+  # certificate_arn = aws_acm_certificate.example.arn
+  certificate_arn = data.aws_acm_certificate.exmaple.arn
+  ssl_policy = "ELBSecurityPolicy-2016-08"
+
+  default_action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "これは！！！HTTTPS！！！です！！！"
+      status_code = "200"
+    }
+  }
+}
+
+resource "aws_lb_listener" "redirect_http_to_https" {
+  load_balancer_arn = aws_lb.example.arn
+  port = "8080"
+  protocol = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port = "443"
+      protocol = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 }
