@@ -3,3 +3,5 @@
 lesson4/.terraform/*
 lesson4/.terraform.lock.hcl
 .DS_Store
+terraform.tfstate
+terraform.tfstate.backup
