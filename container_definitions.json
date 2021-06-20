@@ -11,17 +11,6 @@
         "awslogs-group": "/ecs/example"
       }
     },
-    "secrets": [
-      {
-        "name": "DB_USERNAME",
-        "valueFrom": "/db/username"
-      },
-      {
-        "name": "DB_PASSWORD",
-        "valueFrom": "/db/password"
-      }
-    ],
-    "command": ["/usr/bin/env"],
     "portMappings": [
       {
         "protocol": "tcp",

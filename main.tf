@@ -205,3 +205,45 @@ resource "aws_ssm_parameter" "db_raw_password" {
 # aws ssm put-parameter --name '/db/password' --type SecureString --value 'finder0501' --overwrite
 # aws ssm get-parameter --output text --name '/db/raw_password' --query Parameter.Value
 # 暗号化して上書きされてる！すげーw
+
+# ログ出すためにサービスのタスク定義を手動で3に変えたら起動できなくなった！w
+# とりあえずdestroyしてapplyする➡️サービス4だと動かないけど、まあいっか！w
+# クラスターぶっ壊すとサービスのタスク定義が変わるから、都度ぶっこわす！w
+# jsonが原因で作れないかもだから、追加した記述消したらいけたでござるwww
+
+# resource "aws_db_parameter_group" "example" {
+#   name = "example"
+#   family = "mysql5.7"
+
+#   parameter {
+#     name = "character_set_database"
+#     value = "utf8mb4"
+#   }
+
+#   parameter {
+#     name = "character_set_server"
+#     value = "utf8mb4"
+#   }
+# }
+
+# resource "aws_db_option_group" "example" {
+#   name = "example"
+#   engine_name = "mysql"
+#   major_engine_version = "5.7"
+
+#   option {
+#     option_name = "MARIADB_AUDIT_PLUGIN"
+#   }
+# }
+
+# resource "aws_db_subnet_group" "example" {
+#   name = "example"
+#   subnet_ids = [aws_subnet.private_0.id, aws_subnet.private1.id]
+# }
+
+# resource "aws_db_instance" "example" {
+#   identifier = "example"
+#   engine = "mysql"
+#   engine_version = "5.7.25"
+
+# }
