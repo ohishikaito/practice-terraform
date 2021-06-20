@@ -106,6 +106,7 @@ resource "aws_ecs_service" "example" {
   name = "example"
   cluster = aws_ecs_cluster.example.arn
   task_definition = aws_ecs_task_definition.example.arn
+
   desired_count = 2
   launch_type = "FARGATE"
   platform_version = "1.3.0"
@@ -184,4 +185,23 @@ resource "aws_ecs_task_definition" "example" {
 # レスポンスないけど笑
 # ➡️logが作られねえ！
 
-# 1525
+resource "aws_ssm_parameter" "db_username" {
+  name = "/db/username"
+  value = "root"
+  type = "String"
+  description = "DBのユーザー名"
+}
+
+resource "aws_ssm_parameter" "db_raw_password" {
+  name = "/db/raw_password"
+  value = "undefined"
+  type = "SecureString"
+  description = "DBのパスワード"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+# aws ssm put-parameter --name '/db/password' --type SecureString --value 'finder0501' --overwrite
+# aws ssm get-parameter --output text --name '/db/raw_password' --query Parameter.Value
+# 暗号化して上書きされてる！すげーw
