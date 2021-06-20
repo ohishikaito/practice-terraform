@@ -211,6 +211,45 @@ resource "aws_ssm_parameter" "db_raw_password" {
 # クラスターぶっ壊すとサービスのタスク定義が変わるから、都度ぶっこわす！w
 # jsonが原因で作れないかもだから、追加した記述消したらいけたでござるwww
 
+# エラーはくから上に移動してみた➡️消せないからGUIから消してやったわ！
+# resource "aws_db_instance" "example" {
+#   identifier = "example"
+#   engine = "mysql"
+#   engine_version = "5.7.25"
+#   # t2にしないけど怖いからt3
+#   instance_class = "db.t3.small"
+#   allocated_storage = 20
+#   max_allocated_storage = 100
+#   storage_type = "gp2"
+#   storage_encrypted = true
+#   username = "root"
+#   password = "finder0501"
+#   multi_az = true
+#   publicly_accessible = false
+#   backup_window = "09:10-09:40"
+#   backup_retention_period = 30
+#   maintenance_window = "mon:10:10-mon:10:40"
+#   auto_minor_version_upgrade = false
+#   # 削除保護 本当はtrueだけどfalseにした！
+#   deletion_protection = false
+#   # スナップショット作成をtrueにする！
+#   skip_final_snapshot = true
+#   port = 3306
+#   apply_immediately = false
+#   option_group_name = "${aws_db_option_group.example.name}"
+#   # vpc_security_group_ids = [module.mysql_sg.security_group_id]
+#   vpc_security_group_ids = ["${module.mysql_sg.security_group_id}"]
+#   # parameter_group_name = aws_db_parameter_group.example.name
+#   parameter_group_name = "${aws_db_parameter_group.example.name}"
+#   # db_subnet_group_name = aws_db_subnet_group.example.name
+#   db_subnet_group_name = "${aws_db_subnet_group.example.name}"
+
+#   # なにこれ？
+#   lifecycle {
+#     ignore_changes = [password]
+#   }
+# }
+
 # resource "aws_db_parameter_group" "example" {
 #   name = "example"
 #   family = "mysql5.7"
@@ -238,12 +277,21 @@ resource "aws_ssm_parameter" "db_raw_password" {
 
 # resource "aws_db_subnet_group" "example" {
 #   name = "example"
-#   subnet_ids = [aws_subnet.private_0.id, aws_subnet.private1.id]
+#   subnet_ids = [aws_subnet.private_0.id, aws_subnet.private_1.id]
 # }
 
-# resource "aws_db_instance" "example" {
-#   identifier = "example"
-#   engine = "mysql"
-#   engine_version = "5.7.25"
+# # 環境変数を設定してtf applyしたらどうなる？➡️めんどいから試さなくていいや！また落ちたらだるいw
 
+# module "mysql_sg" {
+#   source = "./security_group"
+#   name = "mysql-sg"
+#   vpc_id = aws_vpc.example.id
+#   port = 3306
+#   cidr_blocks = [aws_vpc.example.cidr_block]
 # }
+
+# applyできないと思ったら既にdb作成済みで草 destroyしたら再度applyする
+# インバウンドが10.0.0.0/16になってるか？
+# もう手動で消す！
+# optionsが勝手に入るから、applyで作り直した後にdestoryする
+# 1683
