@@ -182,5 +182,6 @@ resource "aws_ecs_task_definition" "example" {
 # 先にロググループ生成してapplyしようとしたら、applyで落ちる
 # 旧 aws_ecs_task_definition.example をコメントアウトしたらapplyできてコマンド反応した！
 # レスポンスないけど笑
+# ➡️logが作られねえ！
 
-# 1354
+# 1525
